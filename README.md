@@ -1,74 +1,94 @@
 Progress.Sitefinity.Samples.IntegrationTests
-===========================================
+============================================
 
-## Integration Tests Sample
+# Purpose
 
-The Integration Tests sample project contains integration tests that you can run with the web test runner. 
+When developing for Sitefinity CMS, you often need to cover your custom code with tests to verify that it works properly. In most cases, you will be writing either Unit tests or Integration tests.
 
-This project is module-free. 
+You may use the code in this repository as a starting point to develop your integration tests.
 
-The sample project provides you with a ready-to-test project that you can use to test the functionality of the web test runner. 
-
-### Requirements
+# System Requirements
 
 * Sitefinity CMS license
-* .NET Framework 4.5
-* Visual Studio 2012
+* .NET Framework 4.7.1 or later versions
+* Visual Studio 2012 or later versions
 * Microsoft SQL Server 2008R2 or later versions
+* To run the bundled copy of Sitefinity, make sure that your machine meets the Sitefinity system requirements, outlined [here](https://www.progress.com/documentation/sitefinity-cms/system-requirements)
 
-### Prerequisites
+# Structure of the repository
 
-Clear the NuGet cache files. To do this:
+This repository contains 4 directories:
 
-1. In Windows Explorer, open the **%localappdata%\NuGet\Cache** folder.
-2. Select all files and delete them.
+**IntegrationTests**: this sample project provides you with a ready-to-test code that you can use to test the functionality of the web test runner. 
+Use this code as a starting point for building your integration tests.
 
-### Nuget package restoration
-The solution in this repository relies on NuGet packages with automatic package restore while the build procedure takes place.   
-For a full list of the referenced packages and their versions see the [packages.config](https://github.com/Sitefinity-SDK/Telerik.Sitefinity.Samples.IntegrationTests/blob/master/SitefinityWebApp/packages.config) file.    
-For a history and additional information related to package versions on different releases of this repository, see the [Releases page](https://github.com/Sitefinity-SDK/Telerik.Sitefinity.Samples.IntegrationTests/releases).    
+**SitefinityWebApp**: an example Sitefinity CMS backend. Use it as a development environment to learn how to create Integration tests without affecting your production environment. Once you are comfortable writing test projects, you should run them against a copy of your production infrastructure. We do not recommend running tests agains the production deployment of Sitefinity.
 
+This copy is only for your convenience. To use it, you need a valid Sitefinity license.
+
+**Telerik.WebTestRunner.Client**: the GUI web test runner. Use it while developing your tests.
+
+**Telerik.WebTestRunner.Cmd**: the command-line test runner. Use it for non-interactive automation scenarios like CI/CD pipelines.
+
+# Get started
+
+This tutorial assumes that you are using the bundled Sitefinity copy. It will guide you through setting up your development environement and write your first integration tests.
+
+The sample test project uses the MbUnit test framework. This tutorial provides a quick overview how to use MbUnit framework. To learn the complete MbUnit API, please see the MbUnit [documentation](http://www.gallio.org/doku-id-mbunit-documentation/).
+
+## Set up your development environment
+In the following sections you will find guidelines how to configure your development environment to write integration tests for Sitefinity CMS.
+
+### Restore Nuget packages
+
+To build the example Sitefinity CMS backend, you need to configure the Sitefinity NuGet repository in Visual Studio. Please see this [article](https://www.progress.com/documentation/sitefinity-cms/sitefinity-cms-nuget-packages-repository) for step-by-step instructions.
+
+For a full list of the referenced packages and their versions, see the [packages.config](https://github.com/Sitefinity-SDK/Telerik.Sitefinity.Samples.IntegrationTests/blob/master/SitefinityWebApp/packages.config) file.
+For additional information related to package versions on different releases of this repository, see the [Releases page](https://github.com/Sitefinity-SDK/Telerik.Sitefinity.Samples.IntegrationTests/releases).
 
 ### Installation instructions: SDK Samples from GitHub
 
-1. In Solution Explorer, navigate to _SitefinityWebApp_ » *App_Data* » _Sitefinity_ » _Configuration_ and select the **StartupConfig.config** file. 
-2. Modify the **dbType**, **sqlInstance** and **dbName** values to match your server settings.
-3. Build the solution.
- 
-For version-specific details about the required Sitefinity NuGet packages for this sample application, click on [Releases](https://github.com/Sitefinity-SDK/Telerik.Sitefinity.Samples.IntegrationTests/releases).
+1. Start Visual Studio and open _SitefinityWebApp.csproj_ from _SitefinityWebApp_ directory.
+2. Ensure that in the Sitefinity NuGet package source is configured as described above.
+3. In Solution Explorer, navigate to _SitefinityWebApp_ » *App_Data* » _Sitefinity_ » _Configuration_ and open the **StartupConfig.config** file. 
+4. Modify the **dbType**, **sqlInstance** and **dbName** values to match your server settings.
+5. Build and start the solution. For optimal results, we recommend running Sitefinity inside IIS.
 
 ### Login
 
-To login into the Sitefinity CMS backend, use the following credentials:  
-**Username:** admin   
+To login into the example Sitefinity CMS backend, use the following credentials:
+**Username:** admin
 **Password:** password
 
-### Run the sample
+### Run the sample integration tests
 
 To run the tests in the Web Test Runner application:
 
 1. Navigate to *Telerik.WebTestRunner.Client* folder.
 2. Run the **Telerik.WebTestRunner.Client.exe**.
+3. Configure it with the running instance of the example Sitefinity CMS backend.
 
-### General guidelines on implementing integrated tests
-* Tests need to be atomic. Do not rely on the order in which tests will be run.
+## Writing Integration tests
+
+### General guidelines
+* Tests need to be atomic. Do not rely on the order in which tests are run.
 * Do not expect anything from Sitefinity CMS except the initial state with which it has been installed.
-* Always have in mind what do you want to test. Do not make tests just to verify that “nothing breaks”
+* Always have in mind what do you want to test. Do not make tests just to verify that “nothing breaks.”
 
 ### How to write integration tests for Sitefinity CMS?
 All Integration tests should be places in assemblies that contains integration tests attribute.
 
 1. Create a new class in your Integration Tests project.
-2. Place the ```[TestFixture]``` attribute on top of the class, so that the framework recognizes the class as test fixture.
+2. Place the ```[TestFixture]``` attribute on top of the class, so that the framework recognizes the class as a test fixture.
 3. Place the ```[Description("...")]``` attribute on top of the class and briefly describe the test fixture.
-4. Implement a public void method that reporesents your test.
+4. Implement a public void method that represents your test.
 5. Put a ```[Test]``` attribute on top of the method that represents your test.
 6. Put a ```[Description("...")]``` attribute on top of the method and briefly describe the test purpose.
-7. Implement the test. The Implementation is identical to that of an unit test (except that you have everything at your disposal as you would in a Sitefinity CMS page)
-8. You can use ```[FixtureSetUp]``` and ```[FixtureTearDown]``` attribute to mark methods to be executed at the beginning of a fixture test case execution and at the end. Both methods are optional and are allowed only once per class.
-If ```[FixtureSetUp]``` invocation fails, no test case are executed and they are all marked as failures.
-If ```[FixtureTearDown]``` invocation fails again all tests are marked as failures.
-If ```[SetUp]``` of a test fails, the method-body and the ```[TearDown]``` won't be executed, so you should clean all data that might left after your tests using ```[FixtureTearDown]```. Internal test methods might not be interpreted correctly by the reflection invocation.
+7. Implement the test. The Implementation is identical to that of a unit test (except that you have everything at your disposal as you would in a Sitefinity CMS page)
+8. You can use ```[FixtureSetUp]``` and ```[FixtureTearDown]``` attribute to mark methods to be executed at the beginning of a fixture test case execution and the end. Both methods are optional and are allowed only once per class.
+If ```[FixtureSetUp]``` invocation fails, no test cases are executed, and they are all marked as failures.
+If ```[FixtureTearDown]``` invocation fails again, all tests are marked as failures.
+If ```[SetUp]``` of a test fails, the method-body and the ```[TearDown]``` won't be executed, so you should clean all data that might be left after your tests using ```[FixtureTearDown]```. Internal test methods might not be interpreted correctly by the reflection invocation.
 
 Example:
 ```c#
@@ -123,17 +143,17 @@ namespace MyNamspace
 ```
 
 ### Multilingual Support
-In order to execute a test in multilingual mode you need to add [Multilingual] attribute to the test.
+To execute a test in multilingual mode, you need to add [Multilingual] attribute to the test.
 You can pass one of the following modes in the constructor:
 * Multilingual - This specifies that this test will be executed once the web site is in multilingual mode.
-* MultiAndMonoLingual - this specifies that the test will be executed first in monolingual and then i multilingual mode of the website.
-* Upgrade - This specifies that this test will be executed in monolingual mode, right before the web site is configured to multilingual. Then it will be executed once again after the transition to multilingual. This enables your tests to be non-atomic - the first time after it is executed it leaves some data for the second test to check    
-(test what happens to a given data after the upgrade) so you can work with the data after setting the localization of the website.
+* MultiAndMonoLingual - this specifies that the test will be executed first in monolingual and then in multilingual mode of the website.
+* Upgrade - This specifies that this test will be executed in monolingual mode, right before the web site is configured to multilingual. Then it will be executed once again after the transition to multilingual. This enables your tests to be non-atomic - the first time it is executed, it leaves some data for the second test to check 
+(test what happens to a given data after the upgrade), so you can work with the data after setting the localization of the website.
 
 **You should not hardcode the culture in a test - Example: ```C# var en = new CultureInfo("en-US"); ```**
 
 ### SSL Support
-In order to execute a tests on SSL you need to use the SSL category filter attribute on the test method.
+To execute tests on SSL, you need to use the SSL category filter attribute on the test method.
 ```C#   [Category(TestCategories.Ssl)] ```
 
 Example:
@@ -147,10 +167,10 @@ Example:
 ```
 
 ### Different User execution support
-In order to execute a test with a different user you need to use the Authenticate Attribute on the test method.
+To execute a test with a different user account, you need to use the Authenticate Attribute on the test method.
 ```C# [AuthenticateAttribute(username, password, "provider")] ```
 
-Note: The _AuthenticateAttribute_ accepts a provider parameter which you can pass in order to authenticate with a speciffic membership provider such as a _LDAP_ provider. If you skip this parameter the default membership provider will be used.
+Note: The _AuthenticateAttribute_ accepts a provider parameter that you can pass to authenticate with a specific membership provider such as an _LDAP_ provider. If you skip this parameter, the default membership provider will be used.
 
 Example:
 ```C#
@@ -163,7 +183,7 @@ Example:
  {...}
 ```
 
-**In order to run the test with different user you have to create it first in the [FixtureSetUp] or in the [SetUp]**
+**To run the test with different user you have to create it first in the [FixtureSetUp] or in the [SetUp]**
 You can use the following code to add the user without being logged in.
 **Option 1:**
 ```C#
@@ -177,14 +197,14 @@ using (new ElevatedModeRegion(userManager ))
 ```
 
 **Note:**
-[FixtureSetUp] and [FixtureTearDown] are executed with the user that is set in the app.config or Site setting for the client application.
+[FixtureSetUp] and [FixtureTearDown] are executed with the user account that is set in the app.config or Site setting for the client application.
 [SetUp] and [TearDown] are executed with the user you have set in the AuthenticateAttribute. If it is not set, then they are executed with the same user set in the app.config for the cmd runner or Site Settings section for the Client Application.
 
 ### Using Integration Tests Client Application Runner
 
-After openning the Client Application - you will be prompted to enter the url of the website and the credentials for the Back end. When entering your credentials you can specify a membership provider by selecting the _Use membership provider_ checkbox. For example, you can authenticate with users from a _LDAP_ prvovider. If the Membership provider is left blank the default one will be used to authenticate the user. You can use The Site Settings button to explicitly open the dialog and change your settings ( Located in the bottom right corner of the application).
+After opening the Client Application - you will be prompted to enter the URL of the website and the credentials for the Back end. When entering your credentials, you can specify a membership provider by selecting the _Use membership provider_ checkbox. For example, you can authenticate with users from an _LDAP_ provider. If the Membership provider is left blank, the default one will be used to authenticate the user. You can use the Site Settings button to explicitly open the dialog and change your settings ( Located in the bottom right corner of the application).
 
-**Before you run the tests you should be logged out of the website.**
+**Important! Before you run the tests, ensure that you are logged out of the website.**
 
 You can also use the **Telerik.WebTestRunner.Client.exe.config** or **App.Config** that is part of the  Telerik.WebTestRunner.Client project to edit credentials and url settings:
 Example:
@@ -217,8 +237,8 @@ Supported arguments:
 * Url - the location of the website which holds the integration tests service.
 * TraceFilePath - The log file path, where test results are exported.
 * RunName - Name of the current run.
-* AssemblyName - Name of the assembly that holds your tests. If you are not going to run tests from separate assembly, don't add assemblyName in your query.
-* CategoriesFilter - Supports multiple test categories, so you can execute group of tests instead of entire list. The available categories in Sitefinity CMS are: ModuleBuilder, Data, Core, InlineEditing, Connectors, OpenAccess, Modules, Multisite, ContentApi, SDK, Services, Publishing, Migration, Lighting, RecycleBin, Ssl.
+* AssemblyName - Name of the assembly that holds your tests. If you are not going to run tests from a separate assembly, don't add assemblyName in your query.
+* CategoriesFilter - Supports multiple test categories, so you can execute a group of tests instead of the entire list. The available categories in Sitefinity CMS are: ModuleBuilder, Data, Core, InlineEditing, Connectors, OpenAccess, Modules, Multisite, ContentApi, SDK, Services, Publishing, Migration, Lighting, RecycleBin, Ssl.
 * LoggerType - The CMD runner supports MS TRX format that allows you to integrate it with other systems that can read it like Jenkins CI. If you don't set LoggerType - the default SitefinityXml format is used.
 * Different User Support - Both parameters must be used at the same time.
   * User - Specifies the username
@@ -265,14 +285,14 @@ Supported arguments:
  </credentialsConfiguration>
 ```
 ### Troubleshooting
- * The integration tests are retrieved by a service with a GET request. You can check if the tests are loaded through your browser using the following url (replace the host with the one you use):
+ * The integration tests are retrieved by a service with a GET request. You can check if the tests are loaded through your browser using the following URL (replace the host with the one you use):
 ```XML http://localhost/IntegrationTests/TestRunnerService.svc/GetTests ```
- * If you make a single request to the service it caches the test results, so when you are working with categories you should have this in mind.
- * Website restart will clear cache.
- * To check if tests from a categori(ies) are loaded you can use the categories query in the url like shown below:
+ * If you make a single request to the service, it caches the test results. You should have this in mind when you are working with categories.
+ * Website restart clears the cache.
+ * To check if tests from specific categories are loaded you can use the categories query in the URL like this:
 ```XML http://localhost/IntegrationTests/TestRunnerService.svc/GetTests?categories=ModuleBuilder ```
- * You might also have issues if you use a different version than the latest one of the Telerik.WebTestRunner.Server.dll. This is the server part of the service that is referenced inside the integration tests project.
-It contains the WCF service contract and other code that returns data to the client – WPF stand alone application or CMD runner.
+ * You might also have issues if you use a different version than the latest one of the Telerik.WebTestRunner.Server.dll. This assembly is the server part of the service that is referenced inside the integration tests project.
+It contains the WCF service contract and other code that returns data to the client – WPF stand-alone application or CMD runner.
 
 ### Additional resources
 Sitefinity CMS documentation:
