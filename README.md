@@ -17,12 +17,12 @@ You may use the code in this repository as a starting point to develop your inte
 
 # Structure of the repository
 
-This repository contains 4 directories:
+This repository contains four directories:
 
 **IntegrationTests**: this sample project provides you with a ready-to-test code that you can use to test the functionality of the web test runner. 
 Use this code as a starting point for building your integration tests.
 
-**SitefinityWebApp**: an example Sitefinity CMS backend. Use it as a development environment to learn how to create Integration tests without affecting your production environment. Once you are comfortable writing test projects, you should run them against a copy of your production infrastructure. We do not recommend running tests agains the production deployment of Sitefinity.
+**SitefinityWebApp**: an example Sitefinity CMS backend. Use it as a development environment to learn how to create Integration tests without affecting your production environment. Once you are comfortable writing test projects, you should run them against a copy of your production infrastructure. We do not recommend running tests against the production deployment of Sitefinity.
 
 This copy is only for your convenience. To use it, you need a valid Sitefinity license.
 
@@ -32,12 +32,12 @@ This copy is only for your convenience. To use it, you need a valid Sitefinity l
 
 # Get started
 
-This tutorial assumes that you are using the bundled Sitefinity copy. It will guide you through setting up your development environement and write your first integration tests.
+This tutorial assumes that you are using the bundled Sitefinity copy. It will guide you through setting up your development environment and write your first integration tests.
 
-The sample test project uses the MbUnit test framework. This tutorial provides a quick overview how to use MbUnit framework. To learn the complete MbUnit API, please see the MbUnit [documentation](http://www.gallio.org/doku-id-mbunit-documentation/).
+The sample test project uses the MbUnit test framework. This tutorial provides a quick overview how to use the MbUnit framework. To learn the complete MbUnit API, please see the MbUnit [documentation](http://www.gallio.org/doku-id-mbunit-documentation/).
 
 ## Set up your development environment
-In the following sections you will find guidelines how to configure your development environment to write integration tests for Sitefinity CMS.
+In the following sections you will find guidelines on how to configure your development environment to write integration tests for Sitefinity CMS.
 
 ### Restore Nuget packages
 
@@ -57,8 +57,8 @@ For additional information related to package versions on different releases of 
 ### Login
 
 To login into the example Sitefinity CMS backend, use the following credentials:
-**Username:** admin
-**Password:** password
+**Email:** admin@test.test
+**Password:** admin@2
 
 ### Run the sample integration tests
 
@@ -95,26 +95,29 @@ Example:
 using MbUnit.Framework;
 using System.Linq;
 using Telerik.Sitefinity.Modules.Ecommerce.Catalog;
+using Telerik.Sitefinity.Modules.Ecommerce.Common;
 
 namespace MyNamspace
 {
-
-     [TestFixture]
-     [Description("Integration tests for the ecommerce catalog products.")]
-     public class Products
-     {
-         [Test]
-         [Description("Tests that a product can be created through classic API.")]
-         public void CreateProduct()
-         {
+    [TestFixture]
+    [Description("Integration tests for the ecommerce catalog products.")]
+    public class Products
+    {
+        [Test]
+        [Description("Tests that a product can be created through classic API.")]
+        public void CreateProduct()
+        {
+            const string productTypeName = "Book";
             string productTitle = "Product 1";
             string productDescription = "Product description 1";
             double weight = 10;
-            double price = 25;
-            string sku = "Product SKU 1"; 
-            
+            decimal price = 25.00m;
+            string sku = "Product SKU 1";
+
             var catalogManager = CatalogManager.GetManager();
-            var product = catalogManager.CreateProduct();
+            var ecommerceManager = EcommerceManager.GetManager();
+            var productType = ecommerceManager.GetProductTypes().Where(t => t.Title == productTypeName).SingleOrDefault();
+            var product = catalogManager.CreateProduct(productType.ClrType);
             product.Title = productTitle;
             product.Description = productDescription;
             product.Weight = weight;
@@ -137,10 +140,14 @@ namespace MyNamspace
 
             catalogManager.DeleteProduct(existingProduct);
             catalogManager.SaveChanges();
-         }
-      }
+        }
+    }
 }
 ```
+
+### Customize test execution
+You can customize the test execution to help you with testing more complex scenarios. 
+To do this, apply attributes to your test cases. They are available in the Telerik.WebTestRunner.Server.Attributes namespace from the _Telerik.WebTestRunner.Server_ assembly.
 
 ### Multilingual Support
 To execute a test in multilingual mode, you need to add [Multilingual] attribute to the test.
@@ -151,20 +158,6 @@ You can pass one of the following modes in the constructor:
 (test what happens to a given data after the upgrade), so you can work with the data after setting the localization of the website.
 
 **You should not hardcode the culture in a test - Example: ```C# var en = new CultureInfo("en-US"); ```**
-
-### SSL Support
-To execute tests on SSL, you need to use the SSL category filter attribute on the test method.
-```C#   [Category(TestCategories.Ssl)] ```
-
-Example:
-```C#
- [Test]
- [Category(TestCategories.Ssl)]
- [Author(TestAuthor.Team1)]
- [Description("Ssl test")]
- public void Test1()
- {...}
-```
 
 ### Different User execution support
 To execute a test with a different user account, you need to use the Authenticate Attribute on the test method.
@@ -238,7 +231,7 @@ Supported arguments:
 * TraceFilePath - The log file path, where test results are exported.
 * RunName - Name of the current run.
 * AssemblyName - Name of the assembly that holds your tests. If you are not going to run tests from a separate assembly, don't add assemblyName in your query.
-* CategoriesFilter - Supports multiple test categories, so you can execute a group of tests instead of the entire list. The available categories in Sitefinity CMS are: ModuleBuilder, Data, Core, InlineEditing, Connectors, OpenAccess, Modules, Multisite, ContentApi, SDK, Services, Publishing, Migration, Lighting, RecycleBin, Ssl.
+* CategoriesFilter - Supports multiple test categories, so you can execute a group of tests instead of the entire list.
 * LoggerType - The CMD runner supports MS TRX format that allows you to integrate it with other systems that can read it like Jenkins CI. If you don't set LoggerType - the default SitefinityXml format is used.
 * Different User Support - Both parameters must be used at the same time.
   * User - Specifies the username
